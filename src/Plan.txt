@@ -1,0 +1,15 @@
+Symulacja dylematu więźnia
+
+klasy:
+
+    Domyślna partia składa sie z kilku rund w której wszycy mierzą sie ze wszystkimi a punkty sumują się
+
+    - Game - klasa zawierajaca zasady gry i rozgrywająca grę
+    - Player - klasa parent zawierająca cechy gracza i jego taktykę
+        - ResponsePair - struktura danych odzwierciedlająca odpowiedzi w rundzie
+
+
+Tabele:
+    - przebieg rund
+    (LeftPlayerID,  RightPlayerID, LeftPlayerResponse, RightPlayerResponse, Outcome)
+
