@@ -8,8 +8,23 @@ klasy:
     - Player - klasa parent zawierająca cechy gracza i jego taktykę
         - ResponsePair - struktura danych odzwierciedlająca odpowiedzi w rundzie
 
+- Połączenie do bazy wielokrotne czas: 1007ms
 
 Tabele:
-    - przebieg rund
-    (LeftPlayerID,  RightPlayerID, LeftPlayerResponse, RightPlayerResponse, Outcome)
+
+    - matchrecord : szczegóły meczu, lewy, prawy gracz IDs, ostateczne punkty, zwycięzca
+
+    - roundrecord : przebieg wszystkich rund, odpowiedzi graczy, wynik (Do usunięcia players IDs, Do DODANIA current score lewego i prawego gracza)
+
+    CREATE TABLE roundrecord (
+            gameId INT NOT NULL,
+            matchId INT NOT NULL,
+            roundId INT NOT NULL,
+            leftPlayerId INT NOT NULL,
+            rightPlayerId INT NOT NULL,
+            leftPlayerResponse BOOLEAN NOT NULL,
+            rightPlayerResponse BOOLEAN NOT NULL,
+            outcome VARCHAR(255) NOT NULL,
+            PRIMARY KEY (gameId, matchId, roundId)
+        );
 
