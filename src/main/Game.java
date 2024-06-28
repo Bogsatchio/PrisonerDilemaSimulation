@@ -2,10 +2,12 @@ package main;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Game {
-    public Game(Player leftPLayer, Player rightPlayer, int rounds, int matches) {
+    public Game(Player leftPLayer, Player rightPlayer, int rounds, int matches, Connection connection) {
         this.leftPLayer = leftPLayer;
         this.leftPlayerPoints = 0;
         this.leftPlayerPointsTotal = 0;
@@ -15,6 +17,7 @@ public class Game {
         this.rounds = rounds;
         this.currentRound = 1;
         this.matches = matches;
+        this.connection = connection;
 
         this.matchId = 1;
         this.gameId = globalGameId;
@@ -22,10 +25,12 @@ public class Game {
 
 
         this.roundRecords = new ArrayList<>();
+        this.matchRecords = new ArrayList<>();
     }
 
     Player leftPLayer;
     Player rightPlayer;
+    Connection connection;
     int leftPlayerPoints;
     int leftPlayerPointsTotal;
     int rightPlayerPoints;
@@ -38,6 +43,7 @@ public class Game {
     static int globalGameId = 1;
     int currentRound;
     List<RoundRecord> roundRecords;
+    List<MatchRecord> matchRecords;
 
 
     // returns Outcome
@@ -77,12 +83,13 @@ public class Game {
         // add round to currentGameHistory
         leftPLayer.currentGameHistory.add(new ResponsePair(leftResponse, rightResponse));
         rightPlayer.currentGameHistory.add(new ResponsePair(rightResponse, leftResponse));
-        RoundRecord roundRecord = new RoundRecord(this.gameId, this.matchId, this.currentRound, this.leftPLayer.id,
-                this.rightPlayer.id, leftResponse, rightResponse, outcome);
+        RoundRecord roundRecord = new RoundRecord(this.gameId, this.matchId, this.currentRound,
+                leftResponse, rightResponse, outcome, this.leftPlayerPoints, this.rightPlayerPoints);
         this.roundRecords.add(roundRecord);
         currentRound++;
     }
-    void playTheGame() {
+
+    void playTheGame() { // This can return a HashMap of leftPTotalPoints and rightPTotalPoints HashMap<Integer, Integer> pointResult;
         // Clearing game history at the start of the game
         leftPLayer.currentGameHistory = new ArrayList<>();
         rightPlayer.currentGameHistory = new ArrayList<>();
@@ -95,8 +102,12 @@ public class Game {
 //            System.out.println("Left Player: " + leftPlayerPoints + " | Right Player: " + rightPlayerPoints);
 //            System.out.println();
             }
-            System.out.println("Result of: " + this + "|  executed by: " + Thread.currentThread().getName());
-            System.out.println("Left Player: " + leftPlayerPoints + " | Right Player: " + rightPlayerPoints + "|  executed by: " + Thread.currentThread().getName());
+//            System.out.println("Result of: " + this + "|  executed by: " + Thread.currentThread().getName());
+//            System.out.println("Left Player: " + leftPlayerPoints + " | Right Player: " + rightPlayerPoints + "|  executed by: " + Thread.currentThread().getName());
+
+            MatchRecord matchRecord = new MatchRecord(this.gameId, this.matchId, this.leftPLayer.id,
+                    this.rightPlayer.id, this.leftPlayerPoints, this.rightPlayerPoints, determineTheWinner());
+            this.matchRecords.add(matchRecord);
 
             // Adding to total score and reseting points from the game to 0 and increasing matchId
             leftPlayerPointsTotal += leftPlayerPoints;
@@ -110,39 +121,41 @@ public class Game {
             roundRecordsToDb(roundRecords);
             roundRecords.clear();
 
-
             }
+        // Saving matchRecords to SQL db and clearing the List
+        matchRecordsToDb();
+        matchRecords.clear();
+        HashMap<Integer, Integer> pointResult = new HashMap<>();
+        pointResult.put(leftPLayer.id, leftPlayerPointsTotal);
+        pointResult.put(rightPlayer.id, rightPlayerPointsTotal);
+
+
 
     }
 
-    void roundRecordsToDb(List<RoundRecord> records) {
-        // open connection, execute sql insert statement
+    void roundRecordsToDb(List<RoundRecord> records) { // Can get rid of an argument
         String sql = """
                 INSERT INTO roundrecord 
-                (gameId, matchId, roundId, leftPlayerId, rightPlayerId, leftPlayerResponse, rightPlayerResponse, outcome) 
+                (gameId, matchId, roundId, leftPlayerResponse, rightPlayerResponse, outcome, leftPlayerCurrentPoints, rightPlayerCurrentPoints) 
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)""";
 
-        try (Connection conn = DriverManager.getConnection(
-                "jdbc:mysql://localhost:3306/simulation_dev",
-                System.getenv("MYSQL_USER"),
-                System.getenv("MYSQL_PASS"));
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            conn.setAutoCommit(false); // Start transaction
+        try (PreparedStatement pstmt = this.connection.prepareStatement(sql)) {
+            this.connection.setAutoCommit(false); // Start transaction
 
             for (RoundRecord rec : records) {
                 pstmt.setInt(1, rec.gameId());
                 pstmt.setInt(2, rec.matchId());
                 pstmt.setInt(3, rec.roundId());
-                pstmt.setInt(4, rec.leftPlayerId());
-                pstmt.setInt(5, rec.rightPlayerId());
-                pstmt.setBoolean(6, rec.leftPlayerResponse());
-                pstmt.setBoolean(7, rec.rightPlayerResponse());
-                pstmt.setString(8, rec.outcome().toString());
+                pstmt.setBoolean(4, rec.leftPlayerResponse());
+                pstmt.setBoolean(5, rec.rightPlayerResponse());
+                pstmt.setString(6, rec.outcome().toString());
+                pstmt.setInt(7, rec.leftPlayerCurrentPoints());
+                pstmt.setInt(8, rec.rightPlayerCurrentPoints());
                 pstmt.addBatch(); // Add to batch for batch execution
             }
             pstmt.executeBatch(); // Execute batch
-            conn.commit(); // Commit transaction
-            System.out.println("Records inserted successfully!");
+            this.connection.commit(); // Commit transaction
+            //System.out.println("Records inserted successfully!");
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -150,14 +163,50 @@ public class Game {
 
     }
 
-    static ArrayList<Game> createGamesList(ArrayList<Player> players, int matches, int rounds) {
+    void matchRecordsToDb() {
+        String sql = """
+                INSERT INTO matchrecord 
+                (gameId, matchId, leftPlayerId, rightPlayerId, leftPlayerFinalScore, rightPlayerFinalScore, winnerId) 
+                VALUES (?, ?, ?, ?, ?, ?, ?)""";
+
+        try (PreparedStatement pstmt = this.connection.prepareStatement(sql)) {
+            this.connection.setAutoCommit(false); // Start transaction
+
+            for (MatchRecord rec : this.matchRecords) {
+                pstmt.setInt(1, rec.gameId());
+                pstmt.setInt(2, rec.matchId());
+                pstmt.setInt(3, rec.leftPlayerId());
+                pstmt.setInt(4, rec.rightPlayerId());
+                pstmt.setInt(5, rec.leftPLayerFinalScore());
+                pstmt.setInt(6, rec.rightPLayerFinalScore());
+                pstmt.setInt(7, rec.winnerId());
+                pstmt.addBatch(); // Add to batch for batch execution
+            }
+            pstmt.executeBatch(); // Execute batch
+            this.connection.commit(); // Commit transaction
+            //System.out.println("Records inserted successfully!");
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+
+    int determineTheWinner() {
+        if (this.leftPlayerPoints > this.rightPlayerPoints) return leftPLayer.id;
+        else if (this.leftPlayerPoints < this.rightPlayerPoints) return rightPlayer.id;
+        else return 0; // 0 means DRAW
+    }
+
+    static ArrayList<Game> createGamesList(ArrayList<Player> players, int matches, int rounds, Connection connection) {
         ArrayList<Game> games = new ArrayList<>();
         // create game objects
         for (int i = 0; i < players.size(); i++) {
             for (int j = i+1; j < players.size(); j++) {
                 Player leftPlayer = players.get(i);
                 Player rightPlayer = players.get(j);
-                Game game = new Game(leftPlayer, rightPlayer, rounds, matches);
+                Game game = new Game(leftPlayer, rightPlayer, rounds, matches, connection);
                 games.add(game);
                 //System.out.println(players.get(i).getClass().getName() + " : " + players.get(j).getClass().getName() );
             }
@@ -186,7 +235,9 @@ enum Outcome {
 
 }
 
-record RoundRecord(int gameId, int matchId, int roundId , int leftPlayerId,  int rightPlayerId, boolean leftPlayerResponse, boolean rightPlayerResponse, Outcome outcome) {}
+record RoundRecord(int gameId, int matchId, int roundId , boolean leftPlayerResponse,
+                   boolean rightPlayerResponse, Outcome outcome, int leftPlayerCurrentPoints, int rightPlayerCurrentPoints) {}
 
-// record MatchRecord (int gameId, int matchId, int leftPlayerId)
+record MatchRecord (int gameId, int matchId, int leftPlayerId, int rightPlayerId,
+                    int leftPLayerFinalScore, int rightPLayerFinalScore, int winnerId) {}
 

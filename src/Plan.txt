@@ -2,17 +2,47 @@ Symulacja dylematu więźnia
 
 klasy:
 
-    Domyślna partia składa sie z kilku rund w której wszycy mierzą sie ze wszystkimi a punkty sumują się
+- Player - klasa parent zawierająca cechy gracza i jego taktykę
+- ResponsePair - struktura danych odzwierciedlająca odpowiedzi w rundzie
 
-    - Game - klasa zawierajaca zasady gry i rozgrywająca grę
-    - Player - klasa parent zawierająca cechy gracza i jego taktykę
-        - ResponsePair - struktura danych odzwierciedlająca odpowiedzi w rundzie
-
-- Połączenie do bazy wielokrotne czas: 1007ms
+  WAVE   - creates games between all players, sums up the total points and determines which players should be eliminated
+    |      based on total points accumulated in all the games of the wave.
+    |      (scope: ALL PLAYERS)
+    |
+    V
+  GAME   - consists of number of matches between two players. Ends with totalPoints scored and number of matches won.
+    |      (scope: TWO PLAYERS)
+    |
+    V
+  MATCH  - series of encounters that accumulates points from the rounds
+    |      (scope: TWO PLAYERS)
+    |
+    V
+  ROUND  - one encounter where player cooperate or defect
+            (scope: TWO PLAYERS)
 
 Tabele:
 
+TODO: tables: matchrecord, players,
+TODO: Creating a Wave class that represents each series of games (more or less what it is in Main now).
+      Print summary of the entire wave.
+TODO: Survival of the fittest after each Wave
+
+    - gamerecord : szczegóły gry, łaczna suma wszystkich punktów
+
+
     - matchrecord : szczegóły meczu, lewy, prawy gracz IDs, ostateczne punkty, zwycięzca
+
+    CREATE TABLE matchrecord (
+        gameId INT NOT NULL,
+        matchId INT NOT NULL,
+        leftPlayerId INT NOT NULL,
+        rightPlayerId INT NOT NULL,
+        leftPlayerFinalScore INT NOT NULL,
+        rightPlayerFinalScore INT NOT NULL,
+        winnerId INT NOT NULL,
+        PRIMARY KEY (gameId, matchId)
+    );
 
     - roundrecord : przebieg wszystkich rund, odpowiedzi graczy, wynik (Do usunięcia players IDs, Do DODANIA current score lewego i prawego gracza)
 
@@ -20,11 +50,11 @@ Tabele:
             gameId INT NOT NULL,
             matchId INT NOT NULL,
             roundId INT NOT NULL,
-            leftPlayerId INT NOT NULL,
-            rightPlayerId INT NOT NULL,
             leftPlayerResponse BOOLEAN NOT NULL,
             rightPlayerResponse BOOLEAN NOT NULL,
             outcome VARCHAR(255) NOT NULL,
+            leftPlayerCurrentPoints INT NOT NULL,
+            rightPlayerCurrentPoints INT NOT NULL,
             PRIMARY KEY (gameId, matchId, roundId)
         );
 
