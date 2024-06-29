@@ -7,7 +7,7 @@ import java.util.Random;
 public class Player {
 
     public Player() {
-        this.currentGameHistory = new ArrayList<>();
+        //this.currentGameHistory = new ArrayList<>();
         this.name = getRightPart(this.getClass().getName());
         this.id = globalId;
         globalId++;
@@ -16,13 +16,13 @@ public class Player {
     }
 
     static int globalId = 1;
-    protected  ArrayList<ResponsePair> currentGameHistory;
+    //protected  ArrayList<ResponsePair> currentGameHistory;
     protected String name;
 
     protected int id;
 
     Random random = new Random();
-    protected boolean generateResponse() {
+    protected boolean generateResponse(ArrayList<ResponsePair> currentGameHistory) {
         return random.nextBoolean();
     }
 
@@ -30,6 +30,8 @@ public class Player {
         String[] parts = str.split("\\.");
         return parts[parts.length - 1];
     }
+
+    // GET LAST ResponePair
 
 
 }

@@ -8,6 +8,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -39,28 +40,10 @@ public class Main {
             conn.setAutoCommit(false);
 
             Wave wave = new Wave(players, conn);
-            wave.playOutWave();
+            var waveRes = wave.playOutWave();
+            System.out.println(wave.orderedPlayersScore);
 
-//            ArrayList<Game> games = Game.createGamesList(players, 10, 100, conn);
 
-
-            // Multi Thread
-            //ExecutorService executorService = Executors.newFixedThreadPool(games.size());
-//            ExecutorService executorService = Executors.newCachedThreadPool();
-//
-//            for (Game game : games) {
-//                executorService.submit(game::playTheGame);
-//            }
-//
-//            executorService.shutdown();     // Shut down the executor service gracefully
-//            try {
-//                // Wait for all tasks to complete
-//                if (!executorService.awaitTermination(60, TimeUnit.SECONDS)) {
-//                    executorService.shutdownNow();
-//                }
-//            } catch (InterruptedException e) {
-//                executorService.shutdownNow();
-//            }
         } catch (SQLException e) {
             e.printStackTrace();
         }

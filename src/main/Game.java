@@ -26,6 +26,9 @@ public class Game {
 
         this.roundRecords = new ArrayList<>();
         this.matchRecords = new ArrayList<>();
+
+        this.rightPlayerGameHistory = new ArrayList<>();
+        this.leftPlayerGameHistory = new ArrayList<>();
     }
 
     Player leftPLayer;
@@ -42,6 +45,8 @@ public class Game {
     int gameId;
     static int globalGameId = 1;
     int currentRound;
+    ArrayList<ResponsePair> leftPlayerGameHistory;
+    ArrayList<ResponsePair> rightPlayerGameHistory;
     List<RoundRecord> roundRecords;
     List<MatchRecord> matchRecords;
 
@@ -74,25 +79,25 @@ public class Game {
     }
 
     void playRound() {
-        boolean leftResponse = leftPLayer.generateResponse();
-        boolean rightResponse = rightPlayer.generateResponse();
+        boolean leftResponse = leftPLayer.generateResponse(leftPlayerGameHistory);
+        boolean rightResponse = rightPlayer.generateResponse(rightPlayerGameHistory);
         Outcome outcome = awardPoints(leftResponse, rightResponse);
         //System.out.println("Left Player: " + leftResponse + " | Right Player: " + rightResponse);
 
 
         // add round to currentGameHistory
-        leftPLayer.currentGameHistory.add(new ResponsePair(leftResponse, rightResponse));
-        rightPlayer.currentGameHistory.add(new ResponsePair(rightResponse, leftResponse));
+        leftPlayerGameHistory.add(new ResponsePair(leftResponse, rightResponse));
+        rightPlayerGameHistory.add(new ResponsePair(rightResponse, leftResponse));
         RoundRecord roundRecord = new RoundRecord(this.gameId, this.matchId, this.currentRound,
                 leftResponse, rightResponse, outcome, this.leftPlayerPoints, this.rightPlayerPoints);
         this.roundRecords.add(roundRecord);
         currentRound++;
     }
 
-    void playTheGame() { // This can return a HashMap of leftPTotalPoints and rightPTotalPoints HashMap<Integer, Integer> pointResult;
+    HashMap<Integer, Integer> playTheGame() { // This can return a HashMap of leftPTotalPoints and rightPTotalPoints HashMap<Integer, Integer> pointResult;
         // Clearing game history at the start of the game
-        leftPLayer.currentGameHistory = new ArrayList<>();
-        rightPlayer.currentGameHistory = new ArrayList<>();
+        leftPlayerGameHistory = new ArrayList<>();
+        rightPlayerGameHistory = new ArrayList<>();
 
         //Playing out the game and cashing in points
         for (int j = 0; j < this.matches; j++) {
@@ -128,9 +133,9 @@ public class Game {
         HashMap<Integer, Integer> pointResult = new HashMap<>();
         pointResult.put(leftPLayer.id, leftPlayerPointsTotal);
         pointResult.put(rightPlayer.id, rightPlayerPointsTotal);
+        //System.out.println(pointResult);
 
-
-
+        return pointResult;
     }
 
     void roundRecordsToDb(List<RoundRecord> records) { // Can get rid of an argument
@@ -211,6 +216,7 @@ public class Game {
                 //System.out.println(players.get(i).getClass().getName() + " : " + players.get(j).getClass().getName() );
             }
         }
+        System.out.println("Number of Games created: " + games.size());
         return games;
     }
 

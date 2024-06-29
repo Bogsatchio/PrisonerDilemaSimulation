@@ -23,10 +23,7 @@ klasy:
 
 Tabele:
 
-TODO: tables: matchrecord, players,
-TODO: Creating a Wave class that represents each series of games (more or less what it is in Main now).
-      Print summary of the entire wave.
-TODO: Survival of the fittest after each Wave
+TODO: CURRENT GAME HISTORY is ONE FOR EVERY INSTANCE OF PLAYER THATS WHY THERE ARE PROBLEMS WITH CONCURRENT EXCUTION ON DIFFERENT GAMES
 
     - gamerecord : szczegóły gry, łaczna suma wszystkich punktów
 

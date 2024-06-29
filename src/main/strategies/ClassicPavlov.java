@@ -3,6 +3,8 @@ package main.strategies;
 import main.Player;
 import main.ResponsePair;
 
+import java.util.ArrayList;
+
 public class ClassicPavlov extends Player {
     /*
          - Repeat your behavior from the last round, if it was successful
@@ -11,7 +13,7 @@ public class ClassicPavlov extends Player {
                 (i.e. you cooperated and your opponent betrayed or you both betrayed).
      */
     @Override
-    protected boolean generateResponse() {
+    protected boolean generateResponse(ArrayList<ResponsePair> currentGameHistory) {
         boolean currentResponse = true;
         if (!currentGameHistory.isEmpty()) {
             ResponsePair lastRound = currentGameHistory.get(currentGameHistory.size() - 1);
