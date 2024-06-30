@@ -12,6 +12,7 @@ public class RandomDefector extends Player {
      */
 
     public RandomDefector(double defectionProbability) {
+        this.name = this.name + "-" + defectionProbability;
         this.defectionProbability = defectionProbability;
     }
 
@@ -26,6 +27,7 @@ public class RandomDefector extends Player {
         } else {
             return true;
         }
-
     }
+
+
 }

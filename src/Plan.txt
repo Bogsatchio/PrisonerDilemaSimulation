@@ -14,16 +14,23 @@ klasy:
     |      (scope: TWO PLAYERS)
     |
     V
-  MATCH  - series of encounters that accumulates points from the rounds
+  MATCH  - series of encounters that accumulates points from the rounds.
+    |      The winner's total score from the round is increased by 20%.
     |      (scope: TWO PLAYERS)
     |
     V
   ROUND  - one encounter where player cooperate or defect
             (scope: TWO PLAYERS)
 
-Tabele:
 
-TODO: CURRENT GAME HISTORY is ONE FOR EVERY INSTANCE OF PLAYER THATS WHY THERE ARE PROBLEMS WITH CONCURRENT EXCUTION ON DIFFERENT GAMES
+        TODO: increase winners totalPoint from the match by 20%
+        TODO: Pretty print wyników fali
+        TODO: Eliminacja przegranego gracza
+        TODO: playOutWave outputs new player List that will go into another Wave
+        TODO: Parametryzacja fali z ustawieniami dla liczby rund, meczy, bonusu dla wygranego i ilości eliminowanych graczy
+
+
+Tabele:
 
     - gamerecord : szczegóły gry, łaczna suma wszystkich punktów
 

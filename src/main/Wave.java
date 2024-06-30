@@ -11,18 +11,22 @@ public class Wave {
         this.players = players;
         this.connection = connection;
 
-        this.games =  Game.createGamesList(players, 10, 100, connection);
+        this.games =  Game.createGamesList(players, 5, 20, connection);
         this.totalPlayersScore = initializeTotalPlayersScore();
         this.orderedPlayersScore = new ArrayList<>();
+
+        this.idPlayerMap = new HashMap<>();
+        for (Player player : players) {
+            idPlayerMap.put(player.id, player);
+        }
     }
 
     ArrayList<Player> players;
+    HashMap<Integer, Player> idPlayerMap;
     Map<Integer, Integer> totalPlayersScore;
     List<Map.Entry<Integer, Integer>> orderedPlayersScore;
     ArrayList<Game> games;
     Connection connection;
-
-    // TODO: Print out the result of the Wave. Eliminate the weakest player
 
 
     Map<Integer, Integer> initializeTotalPlayersScore() {
@@ -34,7 +38,7 @@ public class Wave {
         return scoreBoard;
     }
 
-    List<HashMap<Integer, Integer>> playOutWave() {
+    ArrayList<Player>  playOutWave() {
         //ExecutorService executorService = Executors.newFixedThreadPool(games.size());
         ExecutorService executorService = Executors.newCachedThreadPool();
         List<Future<HashMap<Integer, Integer>>> futures = new ArrayList<>();
@@ -74,12 +78,11 @@ public class Wave {
         }
         // Sum the result up for each player and increment the value in totalPlayersScore
         System.out.println("Number of Results from futures received: " + processedResults.size());
-        System.out.println(processedResults);
         sumUpPlayersScore(processedResults);
+        printWaveResults();
+        ArrayList<Player> newPlayersList = eliminateWorstPlayers(1);
 
-
-
-        return processedResults;
+        return newPlayersList;
     }
 
     void sumUpPlayersScore(List<HashMap<Integer, Integer>> processedResults) {
@@ -97,6 +100,24 @@ public class Wave {
         orderedPlayersScore = new ArrayList<>(totalPlayersScore.entrySet());
         orderedPlayersScore.sort((entry1, entry2) -> entry2.getValue().compareTo(entry1.getValue()));
 
+    }
+
+    void printWaveResults() {
+        System.out.println("Result of the Wave:");
+        for (int i = 1; i <= orderedPlayersScore.size(); i++) {
+            var pId = orderedPlayersScore.get(i-1).getKey();
+            var pScore = orderedPlayersScore.get(i-1).getValue();
+            var pName = idPlayerMap.get(pId).name;
+            System.out.println(i + ".  " + pName + " id:" + pId + " with " + pScore + " points");
+        }
+    }
+    ArrayList<Player> eliminateWorstPlayers(int numPlayersToEliminate) {
+        ArrayList<Player> newPlayersList = new ArrayList<>();
+        for (int i = 0; i <= orderedPlayersScore.size() - 1 - numPlayersToEliminate; i++) {
+            var pId = orderedPlayersScore.get(i).getKey();
+            newPlayersList.add(idPlayerMap.get(pId));
+        }
+        return newPlayersList;
     }
 
 }

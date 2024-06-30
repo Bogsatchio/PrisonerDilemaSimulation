@@ -107,11 +107,14 @@ public class Game {
 //            System.out.println("Left Player: " + leftPlayerPoints + " | Right Player: " + rightPlayerPoints);
 //            System.out.println();
             }
+
+
 //            System.out.println("Result of: " + this + "|  executed by: " + Thread.currentThread().getName());
 //            System.out.println("Left Player: " + leftPlayerPoints + " | Right Player: " + rightPlayerPoints + "|  executed by: " + Thread.currentThread().getName());
 
+            int winnerID = determineTheWinner(1.2);
             MatchRecord matchRecord = new MatchRecord(this.gameId, this.matchId, this.leftPLayer.id,
-                    this.rightPlayer.id, this.leftPlayerPoints, this.rightPlayerPoints, determineTheWinner());
+                    this.rightPlayer.id, this.leftPlayerPoints, this.rightPlayerPoints, winnerID);
             this.matchRecords.add(matchRecord);
 
             // Adding to total score and reseting points from the game to 0 and increasing matchId
@@ -189,7 +192,6 @@ public class Game {
             }
             pstmt.executeBatch(); // Execute batch
             this.connection.commit(); // Commit transaction
-            //System.out.println("Records inserted successfully!");
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -198,9 +200,16 @@ public class Game {
     }
 
 
-    int determineTheWinner() {
-        if (this.leftPlayerPoints > this.rightPlayerPoints) return leftPLayer.id;
-        else if (this.leftPlayerPoints < this.rightPlayerPoints) return rightPlayer.id;
+    int determineTheWinner(double winnersPremium) {
+        // outputs winner ID and increases the winner points by 120%
+        if (this.leftPlayerPoints > this.rightPlayerPoints) {
+            leftPlayerPoints = (int) (winnersPremium * leftPlayerPoints);
+            return leftPLayer.id;
+        }
+        else if (this.leftPlayerPoints < this.rightPlayerPoints) {
+            rightPlayerPoints = (int) (winnersPremium * rightPlayerPoints);
+            return rightPlayer.id;
+        }
         else return 0; // 0 means DRAW
     }
 
