@@ -14,8 +14,6 @@ public class ClassicTitForTat extends Player {
         if (!currentGameHistory.isEmpty()) {
             return currentGameHistory.get(currentGameHistory.size() - 1).getOpponentResponse();
         } else return true;
-
     }
-
 
 }

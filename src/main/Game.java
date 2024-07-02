@@ -7,7 +7,11 @@ import java.util.List;
 import java.util.Map;
 
 public class Game {
-    public Game(Player leftPLayer, Player rightPlayer, int rounds, int matches, Connection connection) {
+    public Game(Player leftPLayer, Player rightPlayer, int cooperationPoints, int oneSideBetrayalPoints,
+                int twoSideBetrayalPoints, int rounds, int matches, double winnersPremium, Connection connection) {
+        this.cooperationPoints = cooperationPoints;
+        this.oneSideBetrayalPoints = oneSideBetrayalPoints;
+        this.twoSideBetrayalPoints = twoSideBetrayalPoints;
         this.leftPLayer = leftPLayer;
         this.leftPlayerPoints = 0;
         this.leftPlayerPointsTotal = 0;
@@ -17,6 +21,7 @@ public class Game {
         this.rounds = rounds;
         this.currentRound = 1;
         this.matches = matches;
+        this.winnersPremium = winnersPremium;
         this.connection = connection;
 
         this.matchId = 1;
@@ -31,6 +36,9 @@ public class Game {
         this.leftPlayerGameHistory = new ArrayList<>();
     }
 
+    int cooperationPoints;
+    int oneSideBetrayalPoints;
+    int twoSideBetrayalPoints;
     Player leftPLayer;
     Player rightPlayer;
     Connection connection;
@@ -41,6 +49,7 @@ public class Game {
 
     int rounds;
     int matches;
+    double winnersPremium;
     int matchId;
     int gameId;
     static int globalGameId = 1;
@@ -57,21 +66,21 @@ public class Game {
 
         if (leftR && !rightR)  {
             // left cooperate | right betray
-            rightPlayerPoints += 5;
+            rightPlayerPoints += oneSideBetrayalPoints;
             outcome = Outcome.RIGHTBETRAY;
         } else if (!leftR && rightR) {
             // left betray | right cooperate
-            leftPlayerPoints += 5;
+            leftPlayerPoints += oneSideBetrayalPoints;
             outcome = Outcome.LEFTBETRAY;
         } else if (leftR && rightR) {
             // both cooperate
-            leftPlayerPoints += 3;
-            rightPlayerPoints += 3;
+            leftPlayerPoints += cooperationPoints;
+            rightPlayerPoints += cooperationPoints;
             outcome = Outcome.COOPERATION;
         } else{
             // both betray
-            leftPlayerPoints += 1;
-            rightPlayerPoints += 1;
+            leftPlayerPoints += twoSideBetrayalPoints;
+            rightPlayerPoints += twoSideBetrayalPoints;
             outcome = Outcome.BOTHBETRAY;
         }
         return outcome;
@@ -112,7 +121,7 @@ public class Game {
 //            System.out.println("Result of: " + this + "|  executed by: " + Thread.currentThread().getName());
 //            System.out.println("Left Player: " + leftPlayerPoints + " | Right Player: " + rightPlayerPoints + "|  executed by: " + Thread.currentThread().getName());
 
-            int winnerID = determineTheWinner(1.2);
+            int winnerID = determineTheWinner(winnersPremium);
             MatchRecord matchRecord = new MatchRecord(this.gameId, this.matchId, this.leftPLayer.id,
                     this.rightPlayer.id, this.leftPlayerPoints, this.rightPlayerPoints, winnerID);
             this.matchRecords.add(matchRecord);
@@ -213,14 +222,15 @@ public class Game {
         else return 0; // 0 means DRAW
     }
 
-    static ArrayList<Game> createGamesList(ArrayList<Player> players, int matches, int rounds, Connection connection) {
+    static ArrayList<Game> createGamesList(ArrayList<Player> players, int cooperationPoints, int oneSideBetrayalPoints,
+                                           int twoSideBetrayalPoints, int rounds, int matches, double winnersPremium, Connection connection) {
         ArrayList<Game> games = new ArrayList<>();
         // create game objects
         for (int i = 0; i < players.size(); i++) {
             for (int j = i+1; j < players.size(); j++) {
                 Player leftPlayer = players.get(i);
                 Player rightPlayer = players.get(j);
-                Game game = new Game(leftPlayer, rightPlayer, rounds, matches, connection);
+                Game game = new Game(leftPlayer, rightPlayer, cooperationPoints,oneSideBetrayalPoints, twoSideBetrayalPoints, rounds, matches, winnersPremium, connection);
                 games.add(game);
                 //System.out.println(players.get(i).getClass().getName() + " : " + players.get(j).getClass().getName() );
             }

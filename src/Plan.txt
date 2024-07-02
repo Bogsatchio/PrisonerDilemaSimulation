@@ -5,6 +5,11 @@ klasy:
 - Player - klasa parent zawierająca cechy gracza i jego taktykę
 - ResponsePair - struktura danych odzwierciedlająca odpowiedzi w rundzie
 
+  EXPERIMENT - Defines the initial number of players and number of waves they are going to play
+    |          as well as the rules of waves.
+    |
+    |
+    V
   WAVE   - creates games between all players, sums up the total points and determines which players should be eliminated
     |      based on total points accumulated in all the games of the wave.
     |      (scope: ALL PLAYERS)
@@ -15,7 +20,7 @@ klasy:
     |
     V
   MATCH  - series of encounters that accumulates points from the rounds.
-    |      The winner's total score from the round is increased by 20%.
+    |      The winner's total score from the round is increased by a bonus.
     |      (scope: TWO PLAYERS)
     |
     V
@@ -23,16 +28,19 @@ klasy:
             (scope: TWO PLAYERS)
 
 
-        TODO: increase winners totalPoint from the match by 20%
-        TODO: Pretty print wyników fali
-        TODO: Eliminacja przegranego gracza
-        TODO: playOutWave outputs new player List that will go into another Wave
-        TODO: Parametryzacja fali z ustawieniami dla liczby rund, meczy, bonusu dla wygranego i ilości eliminowanych graczy
+        TODO: EXPERIMENT class
+        TODO: waverecord to database
+        TODO: add description and strategyType to player classes
+
 
 
 Tabele:
 
-    - gamerecord : szczegóły gry, łaczna suma wszystkich punktów
+    - players : opis graczy biorących udział w grze
+    - eliminated players : gracze wyeliminowani z każdej fali
+    - waverecord : szczegóły fali z konstruktora,
+
+    - waveresults : miejsca z danej fali
 
 
     - matchrecord : szczegóły meczu, lewy, prawy gracz IDs, ostateczne punkty, zwycięzca

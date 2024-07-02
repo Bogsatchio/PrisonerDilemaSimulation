@@ -7,11 +7,21 @@ import java.util.concurrent.*;
 public class Wave {
 
     // Additional arguments for Game matches and rounds
-    public Wave(ArrayList<Player> players, Connection connection) {
+    public Wave(ArrayList<Player> players, int cooperationPoints, int oneSideBetrayalPoints, int twoSideBetrayalPoints,
+                int rounds, int matches, int numEliminated, double winnersPremium, Connection connection) {
+        this.cooperationPoints = cooperationPoints;
+        this.oneSideBetrayalPoints = oneSideBetrayalPoints;
+        this.twoSideBetrayalPoints = twoSideBetrayalPoints;
         this.players = players;
+        this.rounds = rounds;
+        this.matches = matches;
+        this.numEliminated = numEliminated;
+        this.winnersPremium = winnersPremium;
         this.connection = connection;
 
-        this.games =  Game.createGamesList(players, 5, 20, connection);
+
+        this.games =  Game.createGamesList(this.players, this.cooperationPoints, this.oneSideBetrayalPoints,
+                this.twoSideBetrayalPoints, this.rounds, this.matches, this.winnersPremium, this.connection);
         this.totalPlayersScore = initializeTotalPlayersScore();
         this.orderedPlayersScore = new ArrayList<>();
 
@@ -20,6 +30,14 @@ public class Wave {
             idPlayerMap.put(player.id, player);
         }
     }
+
+    int cooperationPoints;
+    int oneSideBetrayalPoints;
+    int twoSideBetrayalPoints;
+    int rounds;
+    int matches;
+    int numEliminated;
+    double winnersPremium;
 
     ArrayList<Player> players;
     HashMap<Integer, Player> idPlayerMap;
