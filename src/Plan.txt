@@ -28,19 +28,57 @@ klasy:
             (scope: TWO PLAYERS)
 
 
-        TODO: EXPERIMENT class
-        TODO: waverecord to database
-        TODO: add description and strategyType to player classes
+        TODO (NOT SURE): Players are gonna play with themselves during the wave also
 
 
 
 Tabele:
 
-    - players : opis graczy biorących udział w grze
-    - eliminated players : gracze wyeliminowani z każdej fali
-    - waverecord : szczegóły fali z konstruktora,
+    - players : opis graczy biorących udział w danym eksperymencie.
+
+    CREATE TABLE players (
+        experimentId VARCHAR(100) NOT NULL,
+        playerId INT NOT NULL,
+        name VARCHAR(50) NOT NULL,
+        strategyType VARCHAR(50) NOT NULL,
+        strategyTemper VARCHAR(50) NOT NULL,
+        description VARCHAR(255) NOT NULL,
+        PRIMARY KEY (experimentId, playerId)
+        );
+
+
+
+    - experimentrecord : szczegóły eksperymentu, punktacja ilość meczy, rund itp, ilość srategii danego typu
+
+    CREATE TABLE experimentrecord (
+            experimentId VARCHAR(100) NOT NULL,
+            cooperationPoints INT NOT NULL,
+            oneSideBetrayalPoints INT NOT NULL,
+            twoSideBetrayalPoints INT NOT NULL,
+            waves INT NOT NULL,
+            matches INT NOT NULL,
+            rounds INT NOT NULL,
+            numEliminatedPerWave INT NOT NULL,
+            winnersPremium DECIMAL(10, 2) NOT NULL,
+            description VARCHAR(255) NOT NULL,
+            PRIMARY KEY (experimentId)
+            );
+
+
+
 
     - waveresults : miejsca z danej fali
+
+    CREATE TABLE waveresult (
+        waveId VARCHAR(100) NOT NULL,
+        playerId INT NOT NULL,
+        spot INT NOT NULL,
+        totalScore INT NOT NULL,
+        wasEliminated BOOLEAN NOT NULL,
+        PRIMARY KEY (waveId)
+        );
+
+
 
 
     - matchrecord : szczegóły meczu, lewy, prawy gracz IDs, ostateczne punkty, zwycięzca

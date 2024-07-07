@@ -9,6 +9,12 @@ public class ClassicTitForTat extends Player {
         Cooperates on the first round and imitates its opponent's previous move thereafter.
      */
 
+    public ClassicTitForTat() {
+        this.strategyType = StrategyType.NICE;
+        this.strategyTemper = StrategyTemper.FORGIVING;
+        this.description = "Cooperates on the first round and imitates its opponent's previous move thereafter";
+    }
+
     @Override
     protected boolean generateResponse(ArrayList<ResponsePair> currentGameHistory) {
         if (!currentGameHistory.isEmpty()) {

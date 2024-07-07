@@ -1,14 +1,20 @@
 package main;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.*;
 
 public class Wave {
 
     // Additional arguments for Game matches and rounds
-    public Wave(ArrayList<Player> players, int cooperationPoints, int oneSideBetrayalPoints, int twoSideBetrayalPoints,
+    public Wave(String experimentId, ArrayList<Player> players, int cooperationPoints, int oneSideBetrayalPoints, int twoSideBetrayalPoints,
                 int rounds, int matches, int numEliminated, double winnersPremium, Connection connection) {
+
+        this.experimentId = experimentId;
+        this.waveId = experimentId + globalWaveId;
+        globalWaveId++;
         this.cooperationPoints = cooperationPoints;
         this.oneSideBetrayalPoints = oneSideBetrayalPoints;
         this.twoSideBetrayalPoints = twoSideBetrayalPoints;
@@ -18,6 +24,7 @@ public class Wave {
         this.numEliminated = numEliminated;
         this.winnersPremium = winnersPremium;
         this.connection = connection;
+        this.waveResults = new ArrayList<>();
 
 
         this.games =  Game.createGamesList(this.players, this.cooperationPoints, this.oneSideBetrayalPoints,
@@ -31,6 +38,9 @@ public class Wave {
         }
     }
 
+    String experimentId;
+    String waveId;
+    static int globalWaveId = 1;
     int cooperationPoints;
     int oneSideBetrayalPoints;
     int twoSideBetrayalPoints;
@@ -40,6 +50,7 @@ public class Wave {
     double winnersPremium;
 
     ArrayList<Player> players;
+    List<WaveResult> waveResults;
     HashMap<Integer, Player> idPlayerMap;
     Map<Integer, Integer> totalPlayersScore;
     List<Map.Entry<Integer, Integer>> orderedPlayersScore;
@@ -98,7 +109,14 @@ public class Wave {
         System.out.println("Number of Results from futures received: " + processedResults.size());
         sumUpPlayersScore(processedResults);
         printWaveResults();
-        ArrayList<Player> newPlayersList = eliminateWorstPlayers(1);
+        ArrayList<Player> newPlayersList = eliminateWorstPlayers(numEliminated);
+
+        // TODO:gather waveresults and save them into a table
+        for (Player p : players) {
+            WaveResult waveRes = new WaveResult(this.waveId, p.id, getSpot(p.id), totalPlayersScore.get(p.id), wasEliminated(p.id));
+            this.waveResults.add(waveRes);
+        }
+        waveResultToDb();
 
         return newPlayersList;
     }
@@ -120,6 +138,21 @@ public class Wave {
 
     }
 
+    int getSpot(int pId) {
+        for (int i = 1; i <= orderedPlayersScore.size(); i++) {
+            if (pId == orderedPlayersScore.get(i-1).getKey()) return i;
+        }
+        return 0;
+    }
+
+    boolean wasEliminated(int pId) {
+        int sz = orderedPlayersScore.size();
+        for (int i = sz - 1; i > sz - 1 - numEliminated; i--) {
+            if (pId == orderedPlayersScore.get(i).getKey()) return true;
+        }
+        return false;
+    }
+
     void printWaveResults() {
         System.out.println("Result of the Wave:");
         for (int i = 1; i <= orderedPlayersScore.size(); i++) {
@@ -138,4 +171,33 @@ public class Wave {
         return newPlayersList;
     }
 
+    void waveResultToDb() {
+        String sql = """
+                INSERT INTO waveresult 
+                (waveId, playerId, spot, totalScore, wasEliminated) 
+                VALUES (?, ?, ?, ?, ?)""";
+
+        try (PreparedStatement pstmt = this.connection.prepareStatement(sql)) {
+            this.connection.setAutoCommit(false); // Start transaction
+
+            for (WaveResult rec : this.waveResults) {
+                pstmt.setString(1, rec.waveId());
+                pstmt.setInt(2, rec.playerId());
+                pstmt.setInt(3, rec.spot());
+                pstmt.setInt(4, rec.totalScore());
+                pstmt.setBoolean(5, rec.wasEliminated());
+                pstmt.addBatch(); // Add to batch for batch execution
+            }
+            pstmt.executeBatch(); // Execute batch
+            this.connection.commit(); // Commit transaction
+            //System.out.println("Records inserted successfully!");
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+    }
+
 }
+
+record WaveResult (String waveId, int playerId, int spot, int totalScore, boolean wasEliminated) {}

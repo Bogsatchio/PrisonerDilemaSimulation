@@ -35,9 +35,10 @@ public class Main {
         Player p14 = new ForgivingTitForTat(15, false);
         Player p15 = new GrimTrigger();
         Player p16 = new AlwaysCooperates();
+        Player p17 = new ReverseTitForTat();
 
         ArrayList<Player> players = new ArrayList<>(List.of(p1, p2, p3, p4, p5, p6, p7, p8,
-                p9, p10, p11, p12, p13, p14, p15, p16));
+                p9, p10, p11, p12, p13, p14, p15, p16, p17));
 
         //EXECUTION (fire up connection to db)
         try (Connection conn = DriverManager.getConnection(
@@ -46,8 +47,10 @@ public class Main {
                 System.getenv("MYSQL_PASS"));) {
             conn.setAutoCommit(false);
 
-            Experiment experiment = new Experiment(players,3,5,1,
-                    300, 5, 5, 1, 1.1, conn);
+            String desc = "A classic game with standard scoring and all possible players";
+
+            Experiment experiment = new Experiment("Classic", desc, players,3,5,1,
+                    300, 2, 1, 2, 1.1, conn);
             experiment.playOutExperiment();
 
             // PLay out 3 Waves

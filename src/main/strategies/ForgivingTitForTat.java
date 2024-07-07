@@ -17,6 +17,9 @@ public class ForgivingTitForTat extends Player {
         this.numForgiveness = numForgiveness;
         this.continuousForgiving = continuousForgiving;
         this.currentNumForgiveness = numForgiveness;
+        this.strategyType = StrategyType.NICE;
+        this.strategyTemper = StrategyTemper.FORGIVING;
+        this.description = "But it does not imitate first few betrayals unless they exceed its patience level";
     }
     int numForgiveness;
     int currentNumForgiveness;

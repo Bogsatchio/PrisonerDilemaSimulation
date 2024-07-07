@@ -15,6 +15,9 @@ public class TitForTatBetrayalCounter extends Player {
         this.name = this.name + "-" + betrayalCounter;
         this.betrayalCounter = betrayalCounter;
         this.currentCounter = 0;
+        this.strategyType = StrategyType.NASTY;
+        this.strategyTemper = StrategyTemper.FORGIVING;
+        this.description = "Tit For Tat, but once every set number of rounds it defects";
     }
 
     int betrayalCounter;

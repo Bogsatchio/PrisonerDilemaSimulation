@@ -12,6 +12,13 @@ public class ClassicPavlov extends Player {
          - Change your behavior if you lost in the last round
                 (i.e. you cooperated and your opponent betrayed or you both betrayed).
      */
+
+    public ClassicPavlov() {
+        this.strategyType = StrategyType.NASTY;
+        this.strategyTemper = StrategyTemper.FORGIVING;
+        this.description = "Repeat your behavior from the last round, if it was successful, otherwise repeat";
+    }
+
     @Override
     protected boolean generateResponse(ArrayList<ResponsePair> currentGameHistory) {
         boolean currentResponse = true;

@@ -9,6 +9,13 @@ public class GrimTrigger extends Player {
     /*
         Cooperates until opponent betrays. When that happens it triggers and only betrays.
      */
+
+    public GrimTrigger() {
+        this.strategyType = StrategyType.NASTY;
+        this.strategyTemper = StrategyTemper.VENGEFUL;
+        this.description = "Cooperates until opponent betrays. When that happens it triggers and only betrays";
+    }
+
     boolean isTriggered = false;
     @Override
     protected boolean generateResponse(ArrayList<ResponsePair> currentGameHistory) {

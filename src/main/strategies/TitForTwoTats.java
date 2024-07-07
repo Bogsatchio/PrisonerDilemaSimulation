@@ -8,8 +8,15 @@ import java.util.ArrayList;
 public class TitForTwoTats extends Player {
 
     /*
-        Cooperates unless defected against twice in a row.
+        Cooperates unless betrayed twice in a row.
      */
+
+    public TitForTwoTats() {
+        this.strategyType = StrategyType.NICE;
+        this.strategyTemper = StrategyTemper.FORGIVING;
+        this.description = "Cooperates unless betrayed twice in a row";
+    }
+
     @Override
     protected boolean generateResponse(ArrayList<ResponsePair> currentGameHistory) {
 

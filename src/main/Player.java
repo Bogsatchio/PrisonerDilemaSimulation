@@ -11,7 +11,9 @@ public class Player {
         this.name = getRightPart(this.getClass().getName());
         this.id = globalId;
         globalId++;
-
+        this.strategyType = StrategyType.NASTY;
+        this.strategyTemper = StrategyTemper.RANDOM;
+        this.description = "Default: Totally random behavior";
 
     }
 
@@ -20,6 +22,9 @@ public class Player {
     protected String name;
 
     protected int id;
+    protected StrategyType strategyType;
+    protected StrategyTemper strategyTemper;
+    protected String description;
 
     Random random = new Random();
     protected boolean generateResponse(ArrayList<ResponsePair> currentGameHistory) {
@@ -30,11 +35,21 @@ public class Player {
         String[] parts = str.split("\\.");
         return parts[parts.length - 1];
     }
+    public enum StrategyType {
+        NICE,
+        NASTY
+    }
+
+    public enum StrategyTemper {
+        FORGIVING,
+        VENGEFUL,
+        RANDOM
+    }
 
     // GET LAST ResponePair
 
-
 }
+
 
 
 
