@@ -7,8 +7,9 @@ import java.util.List;
 import java.util.Map;
 
 public class Game {
-    public Game(Player leftPLayer, Player rightPlayer, int cooperationPoints, int oneSideBetrayalPoints,
+    public Game(String waveId, Player leftPLayer, Player rightPlayer, int cooperationPoints, int oneSideBetrayalPoints,
                 int twoSideBetrayalPoints, int rounds, int matches, double winnersPremium, Connection connection) {
+        this.waveId = waveId;
         this.cooperationPoints = cooperationPoints;
         this.oneSideBetrayalPoints = oneSideBetrayalPoints;
         this.twoSideBetrayalPoints = twoSideBetrayalPoints;
@@ -36,6 +37,7 @@ public class Game {
         this.leftPlayerGameHistory = new ArrayList<>();
     }
 
+    String waveId;
     int cooperationPoints;
     int oneSideBetrayalPoints;
     int twoSideBetrayalPoints;
@@ -183,20 +185,21 @@ public class Game {
     void matchRecordsToDb() {
         String sql = """
                 INSERT INTO matchrecord 
-                (gameId, matchId, leftPlayerId, rightPlayerId, leftPlayerFinalScore, rightPlayerFinalScore, winnerId) 
-                VALUES (?, ?, ?, ?, ?, ?, ?)""";
+                (waveId, gameId, matchId, leftPlayerId, rightPlayerId, leftPlayerFinalScore, rightPlayerFinalScore, winnerId) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)""";
 
         try (PreparedStatement pstmt = this.connection.prepareStatement(sql)) {
             this.connection.setAutoCommit(false); // Start transaction
 
             for (MatchRecord rec : this.matchRecords) {
-                pstmt.setInt(1, rec.gameId());
-                pstmt.setInt(2, rec.matchId());
-                pstmt.setInt(3, rec.leftPlayerId());
-                pstmt.setInt(4, rec.rightPlayerId());
-                pstmt.setInt(5, rec.leftPLayerFinalScore());
-                pstmt.setInt(6, rec.rightPLayerFinalScore());
-                pstmt.setInt(7, rec.winnerId());
+                pstmt.setString(1, waveId);
+                pstmt.setInt(2, rec.gameId());
+                pstmt.setInt(3, rec.matchId());
+                pstmt.setInt(4, rec.leftPlayerId());
+                pstmt.setInt(5, rec.rightPlayerId());
+                pstmt.setInt(6, rec.leftPLayerFinalScore());
+                pstmt.setInt(7, rec.rightPLayerFinalScore());
+                pstmt.setInt(8, rec.winnerId());
                 pstmt.addBatch(); // Add to batch for batch execution
             }
             pstmt.executeBatch(); // Execute batch
@@ -222,7 +225,7 @@ public class Game {
         else return 0; // 0 means DRAW
     }
 
-    static ArrayList<Game> createGamesList(ArrayList<Player> players, int cooperationPoints, int oneSideBetrayalPoints,
+    static ArrayList<Game> createGamesList(ArrayList<Player> players, String waveId, int cooperationPoints, int oneSideBetrayalPoints,
                                            int twoSideBetrayalPoints, int rounds, int matches, double winnersPremium, Connection connection) {
         ArrayList<Game> games = new ArrayList<>();
         // create game objects
@@ -230,7 +233,7 @@ public class Game {
             for (int j = i+1; j < players.size(); j++) {
                 Player leftPlayer = players.get(i);
                 Player rightPlayer = players.get(j);
-                Game game = new Game(leftPlayer, rightPlayer, cooperationPoints,oneSideBetrayalPoints, twoSideBetrayalPoints, rounds, matches, winnersPremium, connection);
+                Game game = new Game(waveId, leftPlayer, rightPlayer, cooperationPoints,oneSideBetrayalPoints, twoSideBetrayalPoints, rounds, matches, winnersPremium, connection);
                 games.add(game);
                 //System.out.println(players.get(i).getClass().getName() + " : " + players.get(j).getClass().getName() );
             }

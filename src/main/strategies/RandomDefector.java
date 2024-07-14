@@ -25,6 +25,18 @@ public class RandomDefector extends Player {
         this.description = "Defects randomly according to probability input";
     }
 
+    public RandomDefector(RandomDefector other) {
+        super(other);
+        this.name = other.name;
+        this.defectionProbability = other.defectionProbability;
+        this.strategyTemper = other.strategyTemper;
+    }
+
+    public RandomDefector copy() {
+        return new RandomDefector(defectionProbability);
+    }
+
+
     Random random = new Random();
     double defectionProbability;
 

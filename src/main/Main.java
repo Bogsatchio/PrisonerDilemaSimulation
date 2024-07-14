@@ -40,6 +40,9 @@ public class Main {
         ArrayList<Player> players = new ArrayList<>(List.of(p1, p2, p3, p4, p5, p6, p7, p8,
                 p9, p10, p11, p12, p13, p14, p15, p16, p17));
 
+        //ArrayList<Player> players2 = new ArrayList<>(List.of(p1, p2, p3, p6, p11, p12, p13, p14));
+
+
         //EXECUTION (fire up connection to db)
         try (Connection conn = DriverManager.getConnection(
                 "jdbc:mysql://localhost:3306/simulation_dev",
@@ -50,14 +53,9 @@ public class Main {
             String desc = "A classic game with standard scoring and all possible players";
 
             Experiment experiment = new Experiment("Classic", desc, players,3,5,1,
-                    300, 2, 1, 2, 1.1, conn);
+                    100, 3, 2, 4, 1, conn);
             experiment.playOutExperiment();
 
-            // PLay out 3 Waves
-//            for (int x = 0; x < 3; x++) {
-//                Wave wave = new Wave(players, 300, 5, 1, 1.1, conn);
-//                players = wave.playOutWave();
-//            }
 
 
         } catch (SQLException e) {

@@ -15,6 +15,14 @@ public class ReverseTitForTat extends Player {
         this.description = "Defects if the opponent cooperated and cooperates if the opponent defected";
     }
 
+    public ReverseTitForTat(ReverseTitForTat other) {
+        super(other);
+    }
+
+    public ReverseTitForTat copy() {
+        return new ReverseTitForTat();
+    }
+
     @Override
     protected boolean generateResponse(ArrayList<ResponsePair> currentGameHistory) {
         if (!currentGameHistory.isEmpty()) {

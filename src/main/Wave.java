@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.*;
 
+
 public class Wave {
 
     // Additional arguments for Game matches and rounds
@@ -27,7 +28,8 @@ public class Wave {
         this.waveResults = new ArrayList<>();
 
 
-        this.games =  Game.createGamesList(this.players, this.cooperationPoints, this.oneSideBetrayalPoints,
+
+        this.games =  Game.createGamesList(this.players, this.waveId, this.cooperationPoints, this.oneSideBetrayalPoints,
                 this.twoSideBetrayalPoints, this.rounds, this.matches, this.winnersPremium, this.connection);
         this.totalPlayersScore = initializeTotalPlayersScore();
         this.orderedPlayersScore = new ArrayList<>();
@@ -109,16 +111,18 @@ public class Wave {
         System.out.println("Number of Results from futures received: " + processedResults.size());
         sumUpPlayersScore(processedResults);
         printWaveResults();
+        // Eliminate Players and save the result of the wave to db
         ArrayList<Player> newPlayersList = eliminateWorstPlayers(numEliminated);
-
-        // TODO:gather waveresults and save them into a table
         for (Player p : players) {
             WaveResult waveRes = new WaveResult(this.waveId, p.id, getSpot(p.id), totalPlayersScore.get(p.id), wasEliminated(p.id));
             this.waveResults.add(waveRes);
         }
         waveResultToDb();
+        // duplicate number of the n best players
+       //ArrayList<Player> updatedPlayerList = duplicateBestPlayer(numEliminated, newPlayersList);
 
-        return newPlayersList;
+        //return newPlayersList;
+        return duplicateBestPlayer(numEliminated, newPlayersList);
     }
 
     void sumUpPlayersScore(List<HashMap<Integer, Integer>> processedResults) {
@@ -171,6 +175,26 @@ public class Wave {
         return newPlayersList;
     }
 
+    ArrayList<Player> duplicateBestPlayer(int numPlayersToDuplicate, ArrayList<Player> currentPlayers) {
+        List<Experiment.PlayerRecord> newPlayersRecords = new ArrayList<>();
+        // Get n best Players
+        for (int i = 0; i < numPlayersToDuplicate; i++) {
+            var pId = orderedPlayersScore.get(i).getKey();
+            // create a new Player and add it to idPlayerMap and to playersList
+            //var newP = new Player(idPlayerMap.get(pId)); // TODO CHANGE IT TO A ROBUST IF STATEMENT BASED ON newP getClass
+            var newP = idPlayerMap.get(pId).copy();
+            idPlayerMap.put(newP.id, newP);
+            currentPlayers.add(newP);
+            // Insert new player record to player table in database
+            newPlayersRecords.add(new Experiment.PlayerRecord(experimentId, newP.id, newP.name, newP.strategyType.toString(),
+                    newP.strategyTemper.toString(), newP.description));
+        }
+        playersToDb(newPlayersRecords);
+        return currentPlayers;
+
+    }
+
+
     void waveResultToDb() {
         String sql = """
                 INSERT INTO waveresult 
@@ -197,6 +221,37 @@ public class Wave {
         }
 
     }
+
+    void playersToDb(List<Experiment.PlayerRecord> playerRecords) {
+
+        String sql = """
+                INSERT INTO players
+                (experimentId, playerId, name, waveJoined, strategyType, strategyTemper, description)
+                VALUES (?, ?, ?, ?, ?, ?, ?)""";
+
+        try (PreparedStatement pstmt = this.connection.prepareStatement(sql)) {
+            this.connection.setAutoCommit(false); // Start transaction
+
+            for (Experiment.PlayerRecord rec : playerRecords) {
+                pstmt.setString(1, rec.experimentId());
+                pstmt.setInt(2, rec.playerId());
+                pstmt.setString(3, rec.name());
+                pstmt.setInt(4, globalWaveId);
+                pstmt.setString(5, rec.strategyType());
+                pstmt.setString(6, rec.strategyTemper());
+                pstmt.setString(7, rec.description());
+                pstmt.addBatch(); // Add to batch for batch execution
+            }
+            pstmt.executeBatch(); // Execute batch
+            this.connection.commit(); // Commit transaction
+            //System.out.println("Records inserted successfully!");
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+    }
+
 
 }
 

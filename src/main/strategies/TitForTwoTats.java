@@ -17,6 +17,14 @@ public class TitForTwoTats extends Player {
         this.description = "Cooperates unless betrayed twice in a row";
     }
 
+    public TitForTwoTats(TitForTwoTats other) {
+        super(other);
+    }
+
+    public TitForTwoTats copy() {
+        return new TitForTwoTats();
+    }
+
     @Override
     protected boolean generateResponse(ArrayList<ResponsePair> currentGameHistory) {
 

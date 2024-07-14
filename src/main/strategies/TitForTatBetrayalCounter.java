@@ -20,6 +20,17 @@ public class TitForTatBetrayalCounter extends Player {
         this.description = "Tit For Tat, but once every set number of rounds it defects";
     }
 
+    public TitForTatBetrayalCounter(TitForTatBetrayalCounter other) {
+        super(other);
+        this.name = other.name;
+        this.betrayalCounter = other.betrayalCounter;
+        this.currentCounter = 0;
+    }
+
+    public TitForTatBetrayalCounter copy() {
+        return new TitForTatBetrayalCounter(betrayalCounter);
+    }
+
     int betrayalCounter;
     int currentCounter;
 

@@ -90,8 +90,8 @@ public class Experiment {
 
         String sql = """
                 INSERT INTO players
-                (experimentId, playerId, name, strategyType, strategyTemper, description) 
-                VALUES (?, ?, ?, ?, ?, ?)""";
+                (experimentId, playerId, name, waveJoined, strategyType, strategyTemper, description)
+                VALUES (?, ?, ?, ?, ?, ?, ?)""";
 
         try (PreparedStatement pstmt = this.connection.prepareStatement(sql)) {
             this.connection.setAutoCommit(false); // Start transaction
@@ -100,9 +100,10 @@ public class Experiment {
                 pstmt.setString(1, rec.experimentId());
                 pstmt.setInt(2, rec.playerId());
                 pstmt.setString(3, rec.name());
-                pstmt.setString(4, rec.strategyType());
-                pstmt.setString(5, rec.strategyTemper());
-                pstmt.setString(6, rec.description());
+                pstmt.setInt(4, 1);
+                pstmt.setString(5, rec.strategyType());
+                pstmt.setString(6, rec.strategyTemper());
+                pstmt.setString(7, rec.description());
                 pstmt.addBatch(); // Add to batch for batch execution
             }
             pstmt.executeBatch(); // Execute batch

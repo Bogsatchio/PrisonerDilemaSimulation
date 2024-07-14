@@ -16,6 +16,14 @@ public class AlwaysDefect extends Player {
         this.description = "Always defects";
     }
 
+    public AlwaysDefect(AlwaysDefect other) {
+        super(other); // Call the superclass copy constructor
+    }
+
+    public AlwaysDefect copy() {
+        return new AlwaysDefect();
+    }
+
     @Override
     protected boolean generateResponse(ArrayList<ResponsePair> currentGameHistory) {
         return false;

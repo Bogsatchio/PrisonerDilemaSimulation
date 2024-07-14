@@ -19,6 +19,15 @@ public class ClassicPavlov extends Player {
         this.description = "Repeat your behavior from the last round, if it was successful, otherwise repeat";
     }
 
+    public ClassicPavlov(ClassicPavlov other) {
+        super(other); // Call the superclass copy constructor
+    }
+
+    public ClassicPavlov copy() {
+        return new ClassicPavlov();
+    }
+
+
     @Override
     protected boolean generateResponse(ArrayList<ResponsePair> currentGameHistory) {
         boolean currentResponse = true;

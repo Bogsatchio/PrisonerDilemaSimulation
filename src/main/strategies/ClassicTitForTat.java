@@ -15,6 +15,15 @@ public class ClassicTitForTat extends Player {
         this.description = "Cooperates on the first round and imitates its opponent's previous move thereafter";
     }
 
+    public ClassicTitForTat(ClassicTitForTat other) {
+        super(other); // Call the superclass copy constructor
+    }
+
+    public ClassicTitForTat copy() {
+        return new ClassicTitForTat();
+    }
+
+
     @Override
     protected boolean generateResponse(ArrayList<ResponsePair> currentGameHistory) {
         if (!currentGameHistory.isEmpty()) {

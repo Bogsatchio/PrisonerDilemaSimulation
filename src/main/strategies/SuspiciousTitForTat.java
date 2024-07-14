@@ -16,6 +16,14 @@ public class SuspiciousTitForTat extends Player {
         this.description = "Defects on the first round and imitates its opponent's previous move thereafter";
     }
 
+    public SuspiciousTitForTat(SuspiciousTitForTat other) {
+        super(other);
+    }
+
+    public SuspiciousTitForTat copy() {
+        return new SuspiciousTitForTat();
+    }
+
     @Override
     protected boolean generateResponse(ArrayList<ResponsePair> currentGameHistory) {
         if (!currentGameHistory.isEmpty()) {

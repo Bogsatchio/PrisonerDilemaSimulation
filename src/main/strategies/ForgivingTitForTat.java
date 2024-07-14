@@ -21,6 +21,19 @@ public class ForgivingTitForTat extends Player {
         this.strategyTemper = StrategyTemper.FORGIVING;
         this.description = "But it does not imitate first few betrayals unless they exceed its patience level";
     }
+
+    public ForgivingTitForTat(ForgivingTitForTat other) {
+        super(other);
+        this.name = other.name;
+        this.numForgiveness = other.numForgiveness;
+        this.continuousForgiving = other.continuousForgiving;
+        this.currentNumForgiveness = other.numForgiveness;
+    }
+
+    public ForgivingTitForTat copy() {
+        return new ForgivingTitForTat(numForgiveness, continuousForgiving);
+    }
+
     int numForgiveness;
     int currentNumForgiveness;
     boolean continuousForgiving;

@@ -16,6 +16,15 @@ public class GrimTrigger extends Player {
         this.description = "Cooperates until opponent betrays. When that happens it triggers and only betrays";
     }
 
+    public GrimTrigger(GrimTrigger other) {
+        super(other);
+    }
+
+    public GrimTrigger copy() {
+        return new GrimTrigger();
+    }
+
+
     boolean isTriggered = false;
     @Override
     protected boolean generateResponse(ArrayList<ResponsePair> currentGameHistory) {
