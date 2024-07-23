@@ -1,7 +1,11 @@
 ### IntelliJ IDEA ###
 out/
+target/
 !**/src/main/**/out/
 !**/src/test/**/out/
+src/main/java/main/Plan.txt
+src/Plan.txt
+
 
 ### Eclipse ###
 .apt_generated
@@ -28,4 +32,3 @@ bin/
 ### Mac OS ###
 .DS_Store
 
-Plan.txt
